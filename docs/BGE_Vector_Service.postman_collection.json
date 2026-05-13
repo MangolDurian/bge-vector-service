@@ -1,0 +1,208 @@
+{
+	"info": {
+		"name": "BGE Vector Service",
+		"description": "基于 BGE (bge-base-zh-v1.5) 的中文文本 Embedding 接口集合。\n\n基础地址：http://localhost:8000\n向量维度：768\n相似度计算：内积（点积）",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "向量生成",
+			"item": [
+				{
+					"name": "批量生成向量（示例）",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"texts\": [\n\t\t\"自然语言处理是人工智能的重要方向\",\n\t\t\"深度学习在计算机视觉领域取得了突破\"\n\t]\n}"
+						},
+						"url": {
+							"proto": "http",
+							"host": ["localhost"],
+							"port": "8000",
+							"path": ["embed"]
+						},
+						"description": "将中文文本列表转换为 768 维向量，返回结果可用于语义搜索、文本聚类、相似度计算等。"
+					},
+					"response": []
+				},
+				{
+					"name": "语义相似度对比",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"texts\": [\n\t\t\"今天天气晴朗，阳光明媚\",\n\t\t\"今天是个好天气，太阳很大\",\n\t\t\"股市今日大幅下跌\"\n\t]\n}"
+						},
+						"url": {
+							"proto": "http",
+							"host": ["localhost"],
+							"port": "8000",
+							"path": ["embed"]
+						},
+						"description": "对比语义相近与语义不同的文本向量。前两条语义相近，向量内积会较高；第三条语义不同，内积会较低。"
+					},
+					"response": []
+				},
+				{
+					"name": "单条文本向量",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"texts\": [\n\t\t\"你好世界\"\n\t]\n}"
+						},
+						"url": {
+							"proto": "http",
+							"host": ["localhost"],
+							"port": "8000",
+							"path": ["embed"]
+						},
+						"description": "单条文本的向量生成。"
+					},
+					"response": []
+				},
+				{
+					"name": "长文本向量",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"texts\": [\n\t\t\"大语言模型（Large Language Model，简称 LLM）是一种基于深度学习的自然语言处理模型，通过在海量文本数据上进行预训练，能够理解和生成人类语言。近年来，以 GPT、LLaMA、Qwen 为代表的 LLM 在对话、写作、编程、推理等领域展现出了强大的能力，推动了人工智能技术的快速发展。\"\n\t]\n}"
+						},
+						"url": {
+							"proto": "http",
+							"host": ["localhost"],
+							"port": "8000",
+							"path": ["embed"]
+						},
+						"description": "长文本向量生成示例（超过 512 tokens 的部分会被自动截断）。"
+					},
+					"response": []
+				}
+			],
+			"description": "文本向量生成接口集合"
+		},
+		{
+			"name": "服务状态",
+			"item": [
+				{
+					"name": "健康检查",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"proto": "http",
+							"host": ["localhost"],
+							"port": "8000",
+							"path": ["health"]
+						},
+						"description": "检查服务是否正常运行，模型是否已加载完毕。\n\n- status=ok：服务正常\n- status=loading：模型加载中"
+					},
+					"response": []
+				},
+				{
+					"name": "Swagger 文档",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"proto": "http",
+							"host": ["localhost"],
+							"port": "8000",
+							"path": ["docs"]
+						},
+						"description": "打开浏览器访问此地址，查看 Swagger UI 交互式 API 文档。"
+					},
+					"response": []
+				}
+			],
+			"description": "服务状态与文档"
+		},
+		{
+			"name": "异常测试",
+			"item": [
+				{
+					"name": "空文本列表（400）",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"texts\": []\n}"
+						},
+						"url": {
+							"proto": "http",
+							"host": ["localhost"],
+							"port": "8000",
+							"path": ["embed"]
+						},
+						"description": "测试空列表，预期返回 400 错误。"
+					},
+					"response": []
+				},
+				{
+					"name": "缺少 texts 字段（422）",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"proto": "http",
+							"host": ["localhost"],
+							"port": "8000",
+							"path": ["embed"]
+						},
+						"description": "测试缺少必填字段，预期返回 422 校验错误。"
+					},
+					"response": []
+				}
+			],
+			"description": "异常与边界场景测试"
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	]
+}
