@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BGE Vector Service · 中文文本向量服务</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IBM+Plex+Mono:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a1f3d;
+    --ink-rgb: 10, 31, 61;
+    --paper: #f1f3f5;
+    --paper-rgb: 241, 243, 245;
+    --accent: #1a56db;
+    --accent-rgb: 26, 86, 219;
+    --success: #16a34a;
+    --error: #dc2626;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --serif-en: "Playfair Display", Georgia, serif;
+    --serif-zh: "Noto Serif SC", source-han-serif-sc, serif;
+    --sans-zh: "Noto Sans SC", source-han-sans-sc, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    min-height: 100vh;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans-zh);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ========== 顶部导航 ========== */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 4vw;
+    border-bottom: 1px solid rgba(var(--ink-rgb), .1);
+    background: rgba(var(--paper-rgb), .88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .nav-left { display: flex; align-items: center; gap: 24px; }
+  .nav-logo {
+    font-family: var(--serif-en);
+    font-weight: 900; font-size: 18px; letter-spacing: -.02em;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-divider { width: 1px; height: 18px; background: rgba(var(--ink-rgb), .18); }
+  .nav-sub { font-family: var(--sans-zh); font-size: 13px; opacity: .55; }
+  .nav-right { display: flex; align-items: center; gap: 16px; }
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--success);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  .status-dot.offline { background: var(--error); animation: none; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+  .status-text {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: .18em; text-transform: uppercase; opacity: .6;
+  }
+  .status-model {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: .12em; opacity: .4;
+  }
+
+  /* ========== 主布局 ========== */
+  .main {
+    display: grid; grid-template-columns: 1fr 1fr;
+    min-height: calc(100vh - 60px);
+  }
+
+  /* ========== 左栏：输入区 ========== */
+  .panel-input {
+    padding: 5vh 3.5vw;
+    border-right: 1px solid rgba(var(--ink-rgb), .1);
+    display: flex; flex-direction: column;
+  }
+  .section-label {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: .28em; text-transform: uppercase; opacity: .5;
+    margin-bottom: 16px;
+  }
+  .panel-title {
+    font-family: var(--serif-zh); font-weight: 700;
+    font-size: 28px; line-height: 1.2; letter-spacing: -.01em;
+    margin-bottom: 8px;
+  }
+  .panel-desc {
+    font-family: var(--sans-zh); font-size: 14px;
+    line-height: 1.6; opacity: .6; margin-bottom: 32px;
+    max-width: 420px;
+  }
+
+  /* 文本输入列表 */
+  .text-list { display: flex; flex-direction: column; gap: 12px; flex: 1; overflow-y: auto; }
+  .text-item {
+    display: grid; grid-template-columns: 32px 1fr 36px;
+    gap: 8px; align-items: start;
+    padding: 14px 16px;
+    border: 1px solid rgba(var(--ink-rgb), .12);
+    border-radius: 6px;
+    background: #fff;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .text-item:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .08);
+  }
+  .text-item .idx {
+    font-family: var(--serif-en); font-style: italic;
+    font-weight: 600; font-size: 14px; opacity: .35;
+    padding-top: 2px; user-select: none;
+  }
+  .text-item textarea {
+    border: none; outline: none; resize: none;
+    font-family: var(--sans-zh); font-size: 14px;
+    line-height: 1.65; color: var(--ink);
+    background: transparent; width: 100%; min-height: 44px;
+  }
+  .text-item textarea::placeholder { color: rgba(var(--ink-rgb), .28); }
+  .text-item .btn-remove {
+    border: none; background: none; cursor: pointer;
+    font-size: 18px; color: rgba(var(--ink-rgb), .2);
+    padding: 2px; transition: color .2s;
+    font-family: var(--sans-zh);
+  }
+  .text-item .btn-remove:hover { color: var(--error); }
+
+  /* 操作栏 */
+  .actions {
+    display: flex; gap: 12px; align-items: center;
+    margin-top: 24px; padding-top: 20px;
+    border-top: 1px solid rgba(var(--ink-rgb), .08);
+  }
+  .btn {
+    font-family: var(--sans-zh); font-size: 13px; font-weight: 500;
+    padding: 10px 22px; border-radius: 6px;
+    cursor: pointer; transition: all .2s; border: none;
+    letter-spacing: .02em;
+  }
+  .btn-primary {
+    background: var(--ink); color: var(--paper);
+  }
+  .btn-primary:hover { background: var(--accent); }
+  .btn-primary:disabled { opacity: .35; cursor: not-allowed; }
+  .btn-secondary {
+    background: transparent; color: var(--ink);
+    border: 1px solid rgba(var(--ink-rgb), .18);
+  }
+  .btn-secondary:hover { border-color: rgba(var(--ink-rgb), .4); }
+  .btn-ghost {
+    background: transparent; color: var(--ink);
+    opacity: .45; padding: 10px 14px;
+  }
+  .btn-ghost:hover { opacity: .8; }
+  .actions .spacer { flex: 1; }
+  .text-count {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: .16em; text-transform: uppercase; opacity: .4;
+  }
+
+  /* ========== 右栏：结果区 ========== */
+  .panel-result {
+    padding: 5vh 3.5vw;
+    display: flex; flex-direction: column;
+    background: rgba(var(--ink-rgb), .015);
+  }
+
+  /* 空状态 */
+  .empty-state {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    gap: 16px; opacity: .4;
+  }
+  .empty-state .icon {
+    font-family: var(--serif-en); font-style: italic;
+    font-size: 48px; opacity: .3;
+  }
+  .empty-state .hint {
+    font-family: var(--sans-zh); font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* 结果展示 */
+  .result-section { display: none; flex-direction: column; flex: 1; gap: 28px; }
+  .result-section.visible { display: flex; }
+
+  /* 统计摘要 */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  .stat-card {
+    padding: 20px 0; border-top: 1px solid rgba(var(--ink-rgb), .15);
+  }
+  .stat-card .stat-label {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: .24em; text-transform: uppercase; opacity: .5;
+  }
+  .stat-card .stat-value {
+    font-family: var(--serif-en); font-weight: 800;
+    font-size: 28px; line-height: 1; margin-top: 8px;
+    letter-spacing: -.02em;
+  }
+  .stat-card .stat-note {
+    font-family: var(--sans-zh); font-size: 12px;
+    opacity: .5; margin-top: 6px;
+  }
+
+  /* 相似度矩阵 */
+  .matrix-section { }
+  .matrix-title {
+    font-family: var(--serif-zh); font-weight: 600;
+    font-size: 17px; margin-bottom: 16px;
+  }
+  .matrix-table {
+    width: 100%; border-collapse: collapse;
+    font-family: var(--mono); font-size: 12px;
+  }
+  .matrix-table th, .matrix-table td {
+    padding: 10px 12px; text-align: center;
+    border: 1px solid rgba(var(--ink-rgb), .06);
+  }
+  .matrix-table th {
+    font-weight: 500; letter-spacing: .08em;
+    background: rgba(var(--ink-rgb), .03);
+    font-size: 11px; max-width: 120px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .matrix-table th.corner { background: transparent; }
+  .matrix-table td {
+    position: relative;
+  }
+  .sim-bar {
+    position: absolute; left: 0; bottom: 0;
+    height: 3px; background: var(--accent);
+    opacity: .5; border-radius: 0 2px 0 0;
+    transition: width .4s ease;
+  }
+  .sim-value {
+    position: relative; z-index: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .sim-high { color: var(--accent); font-weight: 600; }
+  .sim-low { opacity: .45; }
+
+  /* 向量预览 */
+  .vector-section { }
+  .vector-title {
+    font-family: var(--serif-zh); font-weight: 600;
+    font-size: 17px; margin-bottom: 16px;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .vector-title .toggle-btn {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: .14em; text-transform: uppercase;
+    opacity: .5; cursor: pointer; background: none; border: none;
+    color: var(--ink); transition: opacity .2s;
+  }
+  .vector-title .toggle-btn:hover { opacity: .8; }
+  .vector-list { display: flex; flex-direction: column; gap: 8px; }
+  .vector-item {
+    padding: 14px 16px;
+    border: 1px solid rgba(var(--ink-rgb), .08);
+    border-radius: 4px; background: #fff;
+  }
+  .vector-item .vec-idx {
+    font-family: var(--serif-en); font-style: italic;
+    font-weight: 600; font-size: 13px; opacity: .4;
+  }
+  .vector-item .vec-text {
+    font-family: var(--sans-zh); font-size: 12px;
+    opacity: .5; margin: 4px 0 8px; line-height: 1.5;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .vector-item .vec-data {
+    font-family: var(--mono); font-size: 11px;
+    line-height: 1.7; opacity: .35; word-break: break-all;
+    max-height: 60px; overflow: hidden;
+    transition: max-height .3s ease;
+  }
+  .vector-item.expanded .vec-data {
+    max-height: 400px; overflow-y: auto; opacity: .55;
+  }
+
+  /* 响应时间 */
+  .latency {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: .14em; text-transform: uppercase;
+    opacity: .35; margin-top: auto; padding-top: 16px;
+    border-top: 1px solid rgba(var(--ink-rgb), .06);
+  }
+
+  /* ========== Loading ========== */
+  .loading-overlay {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(var(--paper-rgb), .85);
+    backdrop-filter: blur(6px);
+    justify-content: center; align-items: center;
+    flex-direction: column; gap: 16px;
+  }
+  .loading-overlay.visible { display: flex; }
+  .loading-spinner {
+    width: 36px; height: 36px;
+    border: 2px solid rgba(var(--ink-rgb), .1);
+    border-top-color: var(--ink);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text {
+    font-family: var(--mono); font-size: 12px;
+    letter-spacing: .2em; text-transform: uppercase; opacity: .5;
+  }
+
+  /* ========== 底栏 ========== */
+  .footer {
+    padding: 14px 4vw;
+    border-top: 1px solid rgba(var(--ink-rgb), .08);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: .14em; text-transform: uppercase; opacity: .4;
+    background: rgba(var(--ink-rgb), .015);
+  }
+
+  /* ========== 响应式 ========== */
+  @media (max-width: 860px) {
+    .main { grid-template-columns: 1fr; }
+    .panel-input { border-right: none; border-bottom: 1px solid rgba(var(--ink-rgb), .1); }
+    .panel-result { min-height: 50vh; }
+    .stats-row { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- 导航栏 -->
+<nav class="nav">
+  <div class="nav-left">
+    <div class="nav-logo">BGE<span>.</span>Vector</div>
+    <div class="nav-divider"></div>
+    <div class="nav-sub">中文文本向量服务</div>
+  </div>
+  <div class="nav-right">
+    <span class="status-model" id="statusModel">--</span>
+    <span class="status-dot" id="statusDot"></span>
+    <span class="status-text" id="statusText">CONNECTING</span>
+  </div>
+</nav>
+
+<!-- 主内容 -->
+<div class="main">
+
+  <!-- 左栏：输入 -->
+  <div class="panel-input">
+    <div class="section-label">Input · 文本输入</div>
+    <div class="panel-title">输入文本，生成向量</div>
+    <div class="panel-desc">添加一条或多条中文文本，点击生成按钮获取对应的语义向量，并计算文本间的语义相似度。</div>
+
+    <div class="text-list" id="textList">
+      <div class="text-item">
+        <span class="idx">1</span>
+        <textarea rows="2" placeholder="输入中文文本...">自然语言处理是人工智能的重要方向</textarea>
+        <button class="btn-remove" onclick="removeText(this)" title="删除">×</button>
+      </div>
+      <div class="text-item">
+        <span class="idx">2</span>
+        <textarea rows="2" placeholder="输入中文文本...">深度学习在计算机视觉领域取得了突破</textarea>
+        <button class="btn-remove" onclick="removeText(this)" title="删除">×</button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="addText()">+ 添加文本</button>
+      <button class="btn btn-ghost" onclick="clearAll()">清空</button>
+      <button class="btn btn-primary" id="btnGenerate" onclick="generate()">生成向量</button>
+      <span class="spacer"></span>
+      <span class="text-count" id="textCount">2 条文本</span>
+    </div>
+  </div>
+
+  <!-- 右栏：结果 -->
+  <div class="panel-result">
+    <div class="section-label">Result · 向量结果</div>
+
+    <!-- 空状态 -->
+    <div class="empty-state" id="emptyState">
+      <div class="icon">V<em>n</em></div>
+      <div class="hint">在左侧输入文本并点击「生成向量」<br>即可查看向量与相似度分析</div>
+    </div>
+
+    <!-- 结果区 -->
+    <div class="result-section" id="resultSection">
+      <!-- 统计 -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Dim</div>
+          <div class="stat-value" id="statDim">--</div>
+          <div class="stat-note">向量维度</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Count</div>
+          <div class="stat-value" id="statCount">--</div>
+          <div class="stat-note">文本数量</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Latency</div>
+          <div class="stat-value" id="statLatency">--</div>
+          <div class="stat-note">响应耗时</div>
+        </div>
+      </div>
+
+      <!-- 相似度矩阵 -->
+      <div class="matrix-section">
+        <div class="matrix-title">语义相似度矩阵</div>
+        <div id="matrixContainer"></div>
+      </div>
+
+      <!-- 向量预览 -->
+      <div class="vector-section">
+        <div class="vector-title">
+          <span>向量数据预览</span>
+          <button class="toggle-btn" onclick="toggleAllVectors()">展开全部</button>
+        </div>
+        <div class="vector-list" id="vectorList"></div>
+      </div>
+
+      <!-- 响应信息 -->
+      <div class="latency" id="latencyInfo">--</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">正在生成向量...</div>
+</div>
+
+<!-- 底栏 -->
+<footer class="footer">
+  <div>BGE Vector Service · bge-base-zh-v1.5</div>
+  <div>Powered by FlagEmbedding</div>
+</footer>
+
+<script>
+/* ========== 配置 ========== */
+const API_BASE = 'http://localhost:8000';
+
+/* ========== 健康检查 ========== */
+async function checkHealth() {
+  try {
+    const resp = await fetch(API_BASE + '/health');
+    const data = await resp.json();
+    document.getElementById('statusDot').classList.remove('offline');
+    document.getElementById('statusText').textContent = 'ONLINE';
+    document.getElementById('statusModel').textContent = data.model || '--';
+  } catch {
+    document.getElementById('statusDot').classList.add('offline');
+    document.getElementById('statusText').textContent = 'OFFLINE';
+    document.getElementById('statusModel').textContent = '';
+  }
+}
+checkHealth();
+setInterval(checkHealth, 15000);
+
+/* ========== 文本管理 ========== */
+function getTexts() {
+  return [...document.querySelectorAll('#textList .text-item textarea')]
+    .map(ta => ta.value.trim())
+    .filter(t => t.length > 0);
+}
+
+function updateCount() {
+  const n = document.querySelectorAll('#textList .text-item').length;
+  document.getElementById('textCount').textContent = n + ' 条文本';
+  // 刷新序号
+  document.querySelectorAll('#textList .text-item .idx').forEach((el, i) => {
+    el.textContent = i + 1;
+  });
+}
+
+function addText() {
+  const list = document.getElementById('textList');
+  const item = document.createElement('div');
+  item.className = 'text-item';
+  const idx = list.querySelectorAll('.text-item').length + 1;
+  item.innerHTML = `
+    <span class="idx">${idx}</span>
+    <textarea rows="2" placeholder="输入中文文本..."></textarea>
+    <button class="btn-remove" onclick="removeText(this)" title="删除">×</button>
+  `;
+  list.appendChild(item);
+  item.querySelector('textarea').focus();
+  updateCount();
+}
+
+function removeText(btn) {
+  const items = document.querySelectorAll('#textList .text-item');
+  if (items.length <= 1) { items[0].querySelector('textarea').value = ''; return; }
+  btn.closest('.text-item').remove();
+  updateCount();
+}
+
+function clearAll() {
+  document.getElementById('textList').innerHTML = `
+    <div class="text-item">
+      <span class="idx">1</span>
+      <textarea rows="2" placeholder="输入中文文本..."></textarea>
+      <button class="btn-remove" onclick="removeText(this)" title="删除">×</button>
+    </div>
+  `;
+  updateCount();
+  document.getElementById('emptyState').style.display = '';
+  document.getElementById('resultSection').classList.remove('visible');
+}
+
+/* ========== 生成向量 ========== */
+async function generate() {
+  const texts = getTexts();
+  if (!texts.length) return;
+
+  const btn = document.getElementById('btnGenerate');
+  const loading = document.getElementById('loading');
+  btn.disabled = true;
+  loading.classList.add('visible');
+
+  const t0 = performance.now();
+  try {
+    const resp = await fetch(API_BASE + '/embed', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texts }),
+    });
+    const data = await resp.json();
+    const latency = ((performance.now() - t0) / 1000).toFixed(2);
+
+    if (!resp.ok) throw new Error(data.detail || '请求失败');
+
+    renderResult(texts, data, latency);
+  } catch (err) {
+    alert('请求失败: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    loading.classList.remove('visible');
+  }
+}
+
+/* ========== 渲染结果 ========== */
+function renderResult(texts, data, latency) {
+  // 隐藏空状态，显示结果
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('resultSection').classList.add('visible');
+
+  // 统计
+  document.getElementById('statDim').textContent = data.dim;
+  document.getElementById('statCount').textContent = data.count;
+  document.getElementById('statLatency').textContent = latency + 's';
+  document.getElementById('latencyInfo').textContent =
+    `${data.count} texts × ${data.dim} dims · ${latency}s · ${API_BASE.replace(/https?:\/\//, '')}`;
+
+  // 相似度矩阵
+  renderMatrix(texts, data.embeddings);
+
+  // 向量列表
+  renderVectors(texts, data.embeddings, data.dim);
+}
+
+function renderMatrix(texts, embeddings) {
+  const n = texts.length;
+  const container = document.getElementById('matrixContainer');
+
+  // 计算内积相似度矩阵
+  const sims = [];
+  let maxSim = -Infinity, minSim = Infinity;
+  for (let i = 0; i < n; i++) {
+    sims[i] = [];
+    for (let j = 0; j < n; j++) {
+      let dot = 0;
+      for (let k = 0; k < embeddings[i].length; k++) dot += embeddings[i][k] * embeddings[j][k];
+      sims[i][j] = dot;
+      if (i !== j) { maxSim = Math.max(maxSim, dot); minSim = Math.min(minSim, dot); }
+    }
+  }
+  const range = maxSim - minSim || 1;
+
+  let html = '<table class="matrix-table"><tr><th class="corner"></th>';
+  for (let j = 0; j < n; j++) html += '<th title="' + texts[j] + '">T' + (j+1) + '</th>';
+  html += '</tr>';
+
+  for (let i = 0; i < n; i++) {
+    html += '<tr><th title="' + texts[i] + '">T' + (i+1) + '</th>';
+    for (let j = 0; j < n; j++) {
+      const s = sims[i][j];
+      const pct = i === j ? 100 : Math.max(0, ((s - minSim) / range) * 100);
+      const cls = i === j ? '' : (pct > 65 ? 'sim-high' : 'sim-low');
+      html += '<td><span class="sim-value ' + cls + '">' + s.toFixed(4) + '</span><div class="sim-bar" style="width:' + pct + '%"></div></td>';
+    }
+    html += '</tr>';
+  }
+  html += '</table>';
+  container.innerHTML = html;
+}
+
+function renderVectors(texts, embeddings, dim) {
+  const list = document.getElementById('vectorList');
+  let html = '';
+  for (let i = 0; i < texts.length; i++) {
+    const preview = embeddings[i].slice(0, 20).map(v => v.toFixed(4)).join(', ') + ', ...';
+    const full = embeddings[i].map(v => v.toFixed(6)).join(', ');
+    html += `
+      <div class="vector-item" id="vec-${i}">
+        <div class="vec-idx">T${i+1}</div>
+        <div class="vec-text">${texts[i]}</div>
+        <div class="vec-data">${preview}</div>
+      </div>
+    `;
+  }
+  list.innerHTML = html;
+
+  // 存储完整数据供展开用
+  list._fullData = embeddings;
+  list._texts = texts;
+}
+
+function toggleAllVectors() {
+  const items = document.querySelectorAll('.vector-item');
+  const expanded = document.querySelector('.vector-item.expanded');
+  const btn = document.querySelector('.toggle-btn');
+
+  if (expanded) {
+    items.forEach(item => {
+      item.classList.remove('expanded');
+      const i = parseInt(item.id.replace('vec-', ''));
+      const preview = item.closest('.vector-list')._fullData[i].slice(0, 20).map(v => v.toFixed(4)).join(', ') + ', ...';
+      item.querySelector('.vec-data').textContent = preview;
+    });
+    btn.textContent = '展开全部';
+  } else {
+    items.forEach(item => {
+      item.classList.add('expanded');
+      const i = parseInt(item.id.replace('vec-', ''));
+      const full = item.closest('.vector-list')._fullData[i].map(v => v.toFixed(6)).join(', ');
+      item.querySelector('.vec-data').textContent = full;
+    });
+    btn.textContent = '收起全部';
+  }
+}
+
+/* ========== 快捷键 ========== */
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    e.preventDefault();
+    generate();
+  }
+});
+
+updateCount();
+</script>
+</body>
+</html>

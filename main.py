@@ -21,6 +21,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from config import settings
@@ -66,6 +67,16 @@ app = FastAPI(
     description="基于 BGE 模型的中文文本 Embedding API，用于将文本转换为高维向量。",
     version="1.0.0",
     lifespan=lifespan,
+)
+
+# ---------------------------------------------------------------------------
+# CORS 跨域支持（允许前端页面从 file:// 或其他端口访问）
+# ---------------------------------------------------------------------------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
