@@ -5,6 +5,8 @@
 
 功能：
     - POST /embed    ：批量生成文本向量
+    - POST /vector   ：单条文本生成向量（兼容 Java NlpService）
+    - POST /answer   ：自然语言查询生成向量（兼容 Java NlpService）
     - GET  /health   ：健康检查
 
 启动方式：
@@ -108,6 +110,18 @@ class ErrorResponse(BaseModel):
     error: str = Field(description="错误信息")
 
 
+class KeywordRequest(BaseModel):
+    """兼容 Java NlpService 的请求体格式"""
+
+    keyword: str = Field(..., description="待编码的文本内容")
+
+
+class VectorResponse(BaseModel):
+    """兼容 Java NlpService 的响应体格式"""
+
+    vector: list[float] = Field(description="向量数据，与输入文本对应的浮点数列表")
+
+
 # ---------------------------------------------------------------------------
 # 接口实现
 # ---------------------------------------------------------------------------
@@ -148,6 +162,71 @@ def health():
         "status": "ok" if _model is not None else "loading",
         "model": settings.MODEL_NAME,
     }
+
+
+# ---------------------------------------------------------------------------
+# 兼容 Java NlpService 的接口
+# ---------------------------------------------------------------------------
+# Java 端调用方式：
+#   HttpRequest.post(url).body("{\"keyword\": \"文本\"}").execute()
+#   响应解析：JSONObject.getStr("vector") 或 JSONArray.getDouble(i)
+#
+# /vector 接口：用于字段值向量化（入库时调用）
+# /answer 接口：用于自然语言查询向量化（检索时调用）
+# ---------------------------------------------------------------------------
+
+@app.post(
+    "/vector",
+    summary="字段值向量化",
+    description="将单个字段值转换为向量，兼容 Java NlpService.word2Vector / calculateVector 接口。",
+)
+def vector(req: KeywordRequest):
+    """
+    字段值向量化接口（兼容 Java NlpService）。
+
+    请求示例：
+        {"keyword": "北京市2025年吉林1号0.5米分辨率全色遥感影像"}
+
+    返回示例：
+        {"vector": [0.0123, -0.0345, ...]}
+    """
+    if _model is None:
+        raise HTTPException(status_code=503, detail="模型尚未加载完成，请稍后重试")
+
+    # 将空值或纯空白视为无效输入，返回空向量
+    if not req.keyword or not req.keyword.strip():
+        return VectorResponse(vector=[])
+
+    # 编码单条文本，取第一个结果
+    vector_data = _model.encode([req.keyword], batch_size=settings.BATCH_SIZE).tolist()[0]
+
+    return VectorResponse(vector=vector_data)
+
+
+@app.post(
+    "/answer",
+    summary="自然语言查询向量化",
+    description="将自然语言查询转换为向量，兼容 Java NlpService 的检索端调用。",
+)
+def answer(req: KeywordRequest):
+    """
+    自然语言查询向量化接口（兼容 Java NlpService）。
+
+    请求示例：
+        {"keyword": "查询大兴机场最新的北京3号融合影像"}
+
+    返回示例：
+        {"vector": [0.0123, -0.0345, ...]}
+    """
+    if _model is None:
+        raise HTTPException(status_code=503, detail="模型尚未加载完成，请稍后重试")
+
+    if not req.keyword or not req.keyword.strip():
+        return VectorResponse(vector=[])
+
+    vector_data = _model.encode([req.keyword], batch_size=settings.BATCH_SIZE).tolist()[0]
+
+    return VectorResponse(vector=vector_data)
 
 
 # ---------------------------------------------------------------------------

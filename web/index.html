@@ -69,17 +69,43 @@
     letter-spacing: .12em; opacity: .4;
   }
 
+  /* ========== 标签切换 ========== */
+  .tab-bar {
+    display: flex; gap: 0; padding: 0 4vw;
+    border-bottom: 1px solid rgba(var(--ink-rgb), .1);
+    background: var(--paper);
+  }
+  .tab-btn {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: .16em; text-transform: uppercase;
+    padding: 14px 28px;
+    background: none; border: none; cursor: pointer;
+    color: rgba(var(--ink-rgb), .4);
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+  }
+  .tab-btn:hover { color: rgba(var(--ink-rgb), .7); }
+  .tab-btn.active {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+
   /* ========== 主布局 ========== */
   .main {
     display: grid; grid-template-columns: 1fr 1fr;
-    min-height: calc(100vh - 60px);
+    min-height: calc(100vh - 110px);
   }
 
-  /* ========== 左栏：输入区 ========== */
+  /* ========== 面板公共 ========== */
   .panel-input {
     padding: 5vh 3.5vw;
     border-right: 1px solid rgba(var(--ink-rgb), .1);
     display: flex; flex-direction: column;
+  }
+  .panel-result {
+    padding: 5vh 3.5vw;
+    display: flex; flex-direction: column;
+    background: rgba(var(--ink-rgb), .015);
   }
   .section-label {
     font-family: var(--mono); font-size: 11px;
@@ -97,7 +123,10 @@
     max-width: 420px;
   }
 
-  /* 文本输入列表 */
+  /* ========== 批量模式：文本列表 ========== */
+  .mode-panel { display: none; flex-direction: column; flex: 1; }
+  .mode-panel.active { display: flex; }
+
   .text-list { display: flex; flex-direction: column; gap: 12px; flex: 1; overflow-y: auto; }
   .text-item {
     display: grid; grid-template-columns: 32px 1fr 36px;
@@ -132,7 +161,59 @@
   }
   .text-item .btn-remove:hover { color: var(--error); }
 
-  /* 操作栏 */
+  /* ========== 单条模式：输入区 ========== */
+  .single-input-group { display: flex; flex-direction: column; gap: 20px; flex: 1; }
+  .single-textarea-wrap {
+    padding: 16px;
+    border: 1px solid rgba(var(--ink-rgb), .12);
+    border-radius: 6px;
+    background: #fff;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .single-textarea-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .08);
+  }
+  .single-textarea-wrap textarea {
+    border: none; outline: none; resize: none;
+    font-family: var(--sans-zh); font-size: 15px;
+    line-height: 1.7; color: var(--ink);
+    background: transparent; width: 100%; min-height: 80px;
+  }
+  .single-textarea-wrap textarea::placeholder { color: rgba(var(--ink-rgb), .28); }
+
+  /* 接口选择 */
+  .endpoint-select {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .endpoint-option {
+    padding: 16px;
+    border: 1px solid rgba(var(--ink-rgb), .12);
+    border-radius: 6px;
+    cursor: pointer; transition: all .2s;
+    background: #fff;
+  }
+  .endpoint-option:hover { border-color: rgba(var(--ink-rgb), .3); }
+  .endpoint-option.selected {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), .03);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .06);
+  }
+  .endpoint-option .ep-method {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: .2em; text-transform: uppercase;
+    opacity: .45; margin-bottom: 6px;
+  }
+  .endpoint-option .ep-path {
+    font-family: var(--mono); font-size: 14px;
+    font-weight: 600; margin-bottom: 6px;
+  }
+  .endpoint-option .ep-desc {
+    font-family: var(--sans-zh); font-size: 12px;
+    opacity: .5; line-height: 1.5;
+  }
+
+  /* ========== 操作栏 ========== */
   .actions {
     display: flex; gap: 12px; align-items: center;
     margin-top: 24px; padding-top: 20px;
@@ -144,9 +225,7 @@
     cursor: pointer; transition: all .2s; border: none;
     letter-spacing: .02em;
   }
-  .btn-primary {
-    background: var(--ink); color: var(--paper);
-  }
+  .btn-primary { background: var(--ink); color: var(--paper); }
   .btn-primary:hover { background: var(--accent); }
   .btn-primary:disabled { opacity: .35; cursor: not-allowed; }
   .btn-secondary {
@@ -154,10 +233,7 @@
     border: 1px solid rgba(var(--ink-rgb), .18);
   }
   .btn-secondary:hover { border-color: rgba(var(--ink-rgb), .4); }
-  .btn-ghost {
-    background: transparent; color: var(--ink);
-    opacity: .45; padding: 10px 14px;
-  }
+  .btn-ghost { background: transparent; color: var(--ink); opacity: .45; padding: 10px 14px; }
   .btn-ghost:hover { opacity: .8; }
   .actions .spacer { flex: 1; }
   .text-count {
@@ -165,14 +241,7 @@
     letter-spacing: .16em; text-transform: uppercase; opacity: .4;
   }
 
-  /* ========== 右栏：结果区 ========== */
-  .panel-result {
-    padding: 5vh 3.5vw;
-    display: flex; flex-direction: column;
-    background: rgba(var(--ink-rgb), .015);
-  }
-
-  /* 空状态 */
+  /* ========== 右栏结果区 ========== */
   .empty-state {
     flex: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: center; text-align: center;
@@ -187,17 +256,13 @@
     line-height: 1.6;
   }
 
-  /* 结果展示 */
   .result-section { display: none; flex-direction: column; flex: 1; gap: 28px; }
   .result-section.visible { display: flex; }
 
   /* 统计摘要 */
-  .stats-row {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
-  }
-  .stat-card {
-    padding: 20px 0; border-top: 1px solid rgba(var(--ink-rgb), .15);
-  }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .stats-row.dual { grid-template-columns: 1fr 1fr; }
+  .stat-card { padding: 20px 0; border-top: 1px solid rgba(var(--ink-rgb), .15); }
   .stat-card .stat-label {
     font-family: var(--mono); font-size: 10px;
     letter-spacing: .24em; text-transform: uppercase; opacity: .5;
@@ -233,24 +298,18 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .matrix-table th.corner { background: transparent; }
-  .matrix-table td {
-    position: relative;
-  }
+  .matrix-table td { position: relative; }
   .sim-bar {
     position: absolute; left: 0; bottom: 0;
     height: 3px; background: var(--accent);
     opacity: .5; border-radius: 0 2px 0 0;
     transition: width .4s ease;
   }
-  .sim-value {
-    position: relative; z-index: 1;
-    font-variant-numeric: tabular-nums;
-  }
+  .sim-value { position: relative; z-index: 1; font-variant-numeric: tabular-nums; }
   .sim-high { color: var(--accent); font-weight: 600; }
   .sim-low { opacity: .45; }
 
   /* 向量预览 */
-  .vector-section { }
   .vector-title {
     font-family: var(--serif-zh); font-weight: 600;
     font-size: 17px; margin-bottom: 16px;
@@ -284,8 +343,24 @@
     max-height: 60px; overflow: hidden;
     transition: max-height .3s ease;
   }
-  .vector-item.expanded .vec-data {
-    max-height: 400px; overflow-y: auto; opacity: .55;
+  .vector-item.expanded .vec-data { max-height: 400px; overflow-y: auto; opacity: .55; }
+
+  /* 单条结果：JSON 预览 */
+  .json-preview {
+    padding: 20px;
+    border: 1px solid rgba(var(--ink-rgb), .08);
+    border-radius: 6px; background: #fff;
+  }
+  .json-preview .jp-label {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: .22em; text-transform: uppercase;
+    opacity: .45; margin-bottom: 12px;
+  }
+  .json-preview pre {
+    font-family: var(--mono); font-size: 12px;
+    line-height: 1.8; color: var(--ink);
+    opacity: .6; word-break: break-all;
+    white-space: pre-wrap;
   }
 
   /* 响应时间 */
@@ -333,7 +408,7 @@
     .main { grid-template-columns: 1fr; }
     .panel-input { border-right: none; border-bottom: 1px solid rgba(var(--ink-rgb), .1); }
     .panel-result { min-height: 50vh; }
-    .stats-row { grid-template-columns: repeat(3, 1fr); }
+    .endpoint-select { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -353,38 +428,83 @@
   </div>
 </nav>
 
+<!-- 标签栏 -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('batch')">Batch · 批量向量</button>
+  <button class="tab-btn" onclick="switchTab('single')">Single · 单条向量</button>
+</div>
+
 <!-- 主内容 -->
 <div class="main">
 
-  <!-- 左栏：输入 -->
+  <!-- ==================== 左栏 ==================== -->
   <div class="panel-input">
-    <div class="section-label">Input · 文本输入</div>
-    <div class="panel-title">输入文本，生成向量</div>
-    <div class="panel-desc">添加一条或多条中文文本，点击生成按钮获取对应的语义向量，并计算文本间的语义相似度。</div>
 
-    <div class="text-list" id="textList">
-      <div class="text-item">
-        <span class="idx">1</span>
-        <textarea rows="2" placeholder="输入中文文本...">自然语言处理是人工智能的重要方向</textarea>
-        <button class="btn-remove" onclick="removeText(this)" title="删除">×</button>
+    <!-- 批量模式 -->
+    <div class="mode-panel active" id="modeBatch">
+      <div class="section-label">Input · 文本输入</div>
+      <div class="panel-title">输入文本，生成向量</div>
+      <div class="panel-desc">添加一条或多条中文文本，点击生成按钮获取对应的语义向量，并计算文本间的语义相似度。</div>
+
+      <div class="text-list" id="textList">
+        <div class="text-item">
+          <span class="idx">1</span>
+          <textarea rows="2" placeholder="输入中文文本...">自然语言处理是人工智能的重要方向</textarea>
+          <button class="btn-remove" onclick="removeText(this)" title="删除">×</button>
+        </div>
+        <div class="text-item">
+          <span class="idx">2</span>
+          <textarea rows="2" placeholder="输入中文文本...">深度学习在计算机视觉领域取得了突破</textarea>
+          <button class="btn-remove" onclick="removeText(this)" title="删除">×</button>
+        </div>
       </div>
-      <div class="text-item">
-        <span class="idx">2</span>
-        <textarea rows="2" placeholder="输入中文文本...">深度学习在计算机视觉领域取得了突破</textarea>
-        <button class="btn-remove" onclick="removeText(this)" title="删除">×</button>
+
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="addText()">+ 添加文本</button>
+        <button class="btn btn-ghost" onclick="clearBatch()">清空</button>
+        <button class="btn btn-primary" id="btnBatch" onclick="generateBatch()">生成向量</button>
+        <span class="spacer"></span>
+        <span class="text-count" id="textCount">2 条文本</span>
       </div>
     </div>
 
-    <div class="actions">
-      <button class="btn btn-secondary" onclick="addText()">+ 添加文本</button>
-      <button class="btn btn-ghost" onclick="clearAll()">清空</button>
-      <button class="btn btn-primary" id="btnGenerate" onclick="generate()">生成向量</button>
-      <span class="spacer"></span>
-      <span class="text-count" id="textCount">2 条文本</span>
+    <!-- 单条模式 -->
+    <div class="mode-panel" id="modeSingle">
+      <div class="section-label">Keyword · 关键词输入</div>
+      <div class="panel-title">单条文本向量化</div>
+      <div class="panel-desc">输入单条文本，选择接口类型，生成对应的语义向量。兼容 Java NlpService 接口格式。</div>
+
+      <div class="single-input-group">
+        <div class="single-textarea-wrap">
+          <textarea rows="4" id="singleKeyword" placeholder="输入关键词或自然语言文本，如：查询北京市2025年吉林1号0.5米分辨率全色遥感影像"></textarea>
+        </div>
+
+        <div class="section-label" style="margin-bottom:0">Endpoint · 接口选择</div>
+        <div class="endpoint-select">
+          <div class="endpoint-option selected" onclick="selectEndpoint('vector', this)">
+            <div class="ep-method">POST</div>
+            <div class="ep-path">/vector</div>
+            <div class="ep-desc">字段值向量化，用于数据入库时将字段内容转为向量</div>
+          </div>
+          <div class="endpoint-option" onclick="selectEndpoint('answer', this)">
+            <div class="ep-method">POST</div>
+            <div class="ep-path">/answer</div>
+            <div class="ep-desc">自然语言查询向量化，用于检索时将查询语句转为向量</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-ghost" onclick="clearSingle()">清空</button>
+        <button class="btn btn-primary" id="btnSingle" onclick="generateSingle()">生成向量</button>
+        <span class="spacer"></span>
+        <span class="text-count" id="endpointHint">/vector</span>
+      </div>
     </div>
+
   </div>
 
-  <!-- 右栏：结果 -->
+  <!-- ==================== 右栏 ==================== -->
   <div class="panel-result">
     <div class="section-label">Result · 向量结果</div>
 
@@ -394,44 +514,65 @@
       <div class="hint">在左侧输入文本并点击「生成向量」<br>即可查看向量与相似度分析</div>
     </div>
 
-    <!-- 结果区 -->
-    <div class="result-section" id="resultSection">
-      <!-- 统计 -->
+    <!-- 批量结果 -->
+    <div class="result-section" id="resultBatch">
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-label">Dim</div>
-          <div class="stat-value" id="statDim">--</div>
+          <div class="stat-value" id="batchDim">--</div>
           <div class="stat-note">向量维度</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Count</div>
-          <div class="stat-value" id="statCount">--</div>
+          <div class="stat-value" id="batchCount">--</div>
           <div class="stat-note">文本数量</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Latency</div>
-          <div class="stat-value" id="statLatency">--</div>
+          <div class="stat-value" id="batchLatency">--</div>
           <div class="stat-note">响应耗时</div>
         </div>
       </div>
-
-      <!-- 相似度矩阵 -->
       <div class="matrix-section">
         <div class="matrix-title">语义相似度矩阵</div>
         <div id="matrixContainer"></div>
       </div>
-
-      <!-- 向量预览 -->
-      <div class="vector-section">
+      <div>
         <div class="vector-title">
           <span>向量数据预览</span>
           <button class="toggle-btn" onclick="toggleAllVectors()">展开全部</button>
         </div>
         <div class="vector-list" id="vectorList"></div>
       </div>
+      <div class="latency" id="batchLatencyInfo">--</div>
+    </div>
 
-      <!-- 响应信息 -->
-      <div class="latency" id="latencyInfo">--</div>
+    <!-- 单条结果 -->
+    <div class="result-section" id="resultSingle">
+      <div class="stats-row dual">
+        <div class="stat-card">
+          <div class="stat-label">Dim</div>
+          <div class="stat-value" id="singleDim">--</div>
+          <div class="stat-note">向量维度</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Latency</div>
+          <div class="stat-value" id="singleLatency">--</div>
+          <div class="stat-note">响应耗时</div>
+        </div>
+      </div>
+      <div>
+        <div class="vector-title">
+          <span>向量数据</span>
+          <button class="toggle-btn" onclick="toggleSingleVector()">展开全部</button>
+        </div>
+        <div id="singleVectorWrap"></div>
+      </div>
+      <div class="json-preview">
+        <div class="jp-label">Response JSON</div>
+        <pre id="singleJson"></pre>
+      </div>
+      <div class="latency" id="singleLatencyInfo">--</div>
     </div>
   </div>
 
@@ -445,13 +586,15 @@
 
 <!-- 底栏 -->
 <footer class="footer">
-  <div>BGE Vector Service · bge-base-zh-v1.5</div>
+  <div>BGE Vector Service · bge-large-zh-v1.5</div>
   <div>Powered by FlagEmbedding</div>
 </footer>
 
 <script>
 /* ========== 配置 ========== */
 const API_BASE = 'http://localhost:8000';
+let currentTab = 'batch';
+let currentEndpoint = 'vector';
 
 /* ========== 健康检查 ========== */
 async function checkHealth() {
@@ -470,7 +613,27 @@ async function checkHealth() {
 checkHealth();
 setInterval(checkHealth, 15000);
 
-/* ========== 文本管理 ========== */
+/* ========== 标签切换 ========== */
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0 ? 'batch' : 'single') === tab));
+  document.getElementById('modeBatch').classList.toggle('active', tab === 'batch');
+  document.getElementById('modeSingle').classList.toggle('active', tab === 'single');
+  // 切换右侧结果区
+  document.getElementById('resultBatch').classList.remove('visible');
+  document.getElementById('resultSingle').classList.remove('visible');
+  document.getElementById('emptyState').style.display = '';
+}
+
+/* ========== 接口选择 ========== */
+function selectEndpoint(ep, el) {
+  currentEndpoint = ep;
+  document.querySelectorAll('.endpoint-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('endpointHint').textContent = '/' + ep;
+}
+
+/* ========== 批量模式 ========== */
 function getTexts() {
   return [...document.querySelectorAll('#textList .text-item textarea')]
     .map(ta => ta.value.trim())
@@ -480,22 +643,14 @@ function getTexts() {
 function updateCount() {
   const n = document.querySelectorAll('#textList .text-item').length;
   document.getElementById('textCount').textContent = n + ' 条文本';
-  // 刷新序号
-  document.querySelectorAll('#textList .text-item .idx').forEach((el, i) => {
-    el.textContent = i + 1;
-  });
+  document.querySelectorAll('#textList .text-item .idx').forEach((el, i) => { el.textContent = i + 1; });
 }
 
 function addText() {
   const list = document.getElementById('textList');
   const item = document.createElement('div');
   item.className = 'text-item';
-  const idx = list.querySelectorAll('.text-item').length + 1;
-  item.innerHTML = `
-    <span class="idx">${idx}</span>
-    <textarea rows="2" placeholder="输入中文文本..."></textarea>
-    <button class="btn-remove" onclick="removeText(this)" title="删除">×</button>
-  `;
+  item.innerHTML = '<span class="idx">' + (list.querySelectorAll('.text-item').length + 1) + '</span><textarea rows="2" placeholder="输入中文文本..."></textarea><button class="btn-remove" onclick="removeText(this)" title="删除">\u00d7</button>';
   list.appendChild(item);
   item.querySelector('textarea').focus();
   updateCount();
@@ -508,147 +663,156 @@ function removeText(btn) {
   updateCount();
 }
 
-function clearAll() {
-  document.getElementById('textList').innerHTML = `
-    <div class="text-item">
-      <span class="idx">1</span>
-      <textarea rows="2" placeholder="输入中文文本..."></textarea>
-      <button class="btn-remove" onclick="removeText(this)" title="删除">×</button>
-    </div>
-  `;
+function clearBatch() {
+  document.getElementById('textList').innerHTML = '<div class="text-item"><span class="idx">1</span><textarea rows="2" placeholder="输入中文文本..."></textarea><button class="btn-remove" onclick="removeText(this)" title="删除">\u00d7</button></div>';
   updateCount();
   document.getElementById('emptyState').style.display = '';
-  document.getElementById('resultSection').classList.remove('visible');
+  document.getElementById('resultBatch').classList.remove('visible');
 }
 
-/* ========== 生成向量 ========== */
-async function generate() {
+function clearSingle() {
+  document.getElementById('singleKeyword').value = '';
+  document.getElementById('emptyState').style.display = '';
+  document.getElementById('resultSingle').classList.remove('visible');
+}
+
+/* ========== 批量生成 ========== */
+async function generateBatch() {
   const texts = getTexts();
   if (!texts.length) return;
-
-  const btn = document.getElementById('btnGenerate');
+  const btn = document.getElementById('btnBatch');
   const loading = document.getElementById('loading');
-  btn.disabled = true;
-  loading.classList.add('visible');
-
+  btn.disabled = true; loading.classList.add('visible');
   const t0 = performance.now();
   try {
     const resp = await fetch(API_BASE + '/embed', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ texts }),
     });
     const data = await resp.json();
     const latency = ((performance.now() - t0) / 1000).toFixed(2);
-
     if (!resp.ok) throw new Error(data.detail || '请求失败');
-
-    renderResult(texts, data, latency);
-  } catch (err) {
-    alert('请求失败: ' + err.message);
-  } finally {
-    btn.disabled = false;
-    loading.classList.remove('visible');
-  }
+    renderBatchResult(texts, data, latency);
+  } catch (err) { alert('请求失败: ' + err.message); }
+  finally { btn.disabled = false; loading.classList.remove('visible'); }
 }
 
-/* ========== 渲染结果 ========== */
-function renderResult(texts, data, latency) {
-  // 隐藏空状态，显示结果
+function renderBatchResult(texts, data, latency) {
   document.getElementById('emptyState').style.display = 'none';
-  document.getElementById('resultSection').classList.add('visible');
-
-  // 统计
-  document.getElementById('statDim').textContent = data.dim;
-  document.getElementById('statCount').textContent = data.count;
-  document.getElementById('statLatency').textContent = latency + 's';
-  document.getElementById('latencyInfo').textContent =
-    `${data.count} texts × ${data.dim} dims · ${latency}s · ${API_BASE.replace(/https?:\/\//, '')}`;
-
-  // 相似度矩阵
+  document.getElementById('resultBatch').classList.add('visible');
+  document.getElementById('resultSingle').classList.remove('visible');
+  document.getElementById('batchDim').textContent = data.dim;
+  document.getElementById('batchCount').textContent = data.count;
+  document.getElementById('batchLatency').textContent = latency + 's';
+  document.getElementById('batchLatencyInfo').textContent = data.count + ' texts \u00d7 ' + data.dim + ' dims \u00b7 ' + latency + 's';
   renderMatrix(texts, data.embeddings);
-
-  // 向量列表
   renderVectors(texts, data.embeddings, data.dim);
 }
 
 function renderMatrix(texts, embeddings) {
   const n = texts.length;
   const container = document.getElementById('matrixContainer');
-
-  // 计算内积相似度矩阵
-  const sims = [];
-  let maxSim = -Infinity, minSim = Infinity;
-  for (let i = 0; i < n; i++) {
-    sims[i] = [];
-    for (let j = 0; j < n; j++) {
-      let dot = 0;
+  const sims = []; let maxSim = -Infinity, minSim = Infinity;
+  for (let i = 0; i < n; i++) { sims[i] = [];
+    for (let j = 0; j < n; j++) { let dot = 0;
       for (let k = 0; k < embeddings[i].length; k++) dot += embeddings[i][k] * embeddings[j][k];
-      sims[i][j] = dot;
-      if (i !== j) { maxSim = Math.max(maxSim, dot); minSim = Math.min(minSim, dot); }
+      sims[i][j] = dot; if (i !== j) { maxSim = Math.max(maxSim, dot); minSim = Math.min(minSim, dot); }
     }
   }
   const range = maxSim - minSim || 1;
-
   let html = '<table class="matrix-table"><tr><th class="corner"></th>';
   for (let j = 0; j < n; j++) html += '<th title="' + texts[j] + '">T' + (j+1) + '</th>';
   html += '</tr>';
-
-  for (let i = 0; i < n; i++) {
-    html += '<tr><th title="' + texts[i] + '">T' + (i+1) + '</th>';
-    for (let j = 0; j < n; j++) {
-      const s = sims[i][j];
-      const pct = i === j ? 100 : Math.max(0, ((s - minSim) / range) * 100);
+  for (let i = 0; i < n; i++) { html += '<tr><th title="' + texts[i] + '">T' + (i+1) + '</th>';
+    for (let j = 0; j < n; j++) { const s = sims[i][j]; const pct = i === j ? 100 : Math.max(0, ((s - minSim) / range) * 100);
       const cls = i === j ? '' : (pct > 65 ? 'sim-high' : 'sim-low');
       html += '<td><span class="sim-value ' + cls + '">' + s.toFixed(4) + '</span><div class="sim-bar" style="width:' + pct + '%"></div></td>';
-    }
-    html += '</tr>';
+    } html += '</tr>';
   }
-  html += '</table>';
-  container.innerHTML = html;
+  html += '</table>'; container.innerHTML = html;
 }
 
 function renderVectors(texts, embeddings, dim) {
-  const list = document.getElementById('vectorList');
-  let html = '';
+  const list = document.getElementById('vectorList'); let html = '';
   for (let i = 0; i < texts.length; i++) {
     const preview = embeddings[i].slice(0, 20).map(v => v.toFixed(4)).join(', ') + ', ...';
-    const full = embeddings[i].map(v => v.toFixed(6)).join(', ');
-    html += `
-      <div class="vector-item" id="vec-${i}">
-        <div class="vec-idx">T${i+1}</div>
-        <div class="vec-text">${texts[i]}</div>
-        <div class="vec-data">${preview}</div>
-      </div>
-    `;
+    html += '<div class="vector-item" id="bvec-' + i + '"><div class="vec-idx">T' + (i+1) + '</div><div class="vec-text">' + texts[i] + '</div><div class="vec-data">' + preview + '</div></div>';
   }
-  list.innerHTML = html;
-
-  // 存储完整数据供展开用
-  list._fullData = embeddings;
-  list._texts = texts;
+  list.innerHTML = html; list._fullData = embeddings; list._texts = texts;
 }
 
 function toggleAllVectors() {
-  const items = document.querySelectorAll('.vector-item');
-  const expanded = document.querySelector('.vector-item.expanded');
-  const btn = document.querySelector('.toggle-btn');
-
+  const items = document.querySelectorAll('[id^="bvec-"]');
+  const expanded = document.querySelector('[id^="bvec-"].expanded');
+  const btn = document.querySelector('#resultBatch .toggle-btn');
+  const list = document.getElementById('vectorList');
   if (expanded) {
-    items.forEach(item => {
-      item.classList.remove('expanded');
-      const i = parseInt(item.id.replace('vec-', ''));
-      const preview = item.closest('.vector-list')._fullData[i].slice(0, 20).map(v => v.toFixed(4)).join(', ') + ', ...';
-      item.querySelector('.vec-data').textContent = preview;
+    items.forEach(item => { item.classList.remove('expanded');
+      const i = parseInt(item.id.replace('bvec-', ''));
+      item.querySelector('.vec-data').textContent = list._fullData[i].slice(0, 20).map(v => v.toFixed(4)).join(', ') + ', ...';
+    }); btn.textContent = '展开全部';
+  } else {
+    items.forEach(item => { item.classList.add('expanded');
+      const i = parseInt(item.id.replace('bvec-', ''));
+      item.querySelector('.vec-data').textContent = list._fullData[i].map(v => v.toFixed(6)).join(', ');
+    }); btn.textContent = '收起全部';
+  }
+}
+
+/* ========== 单条生成 ========== */
+async function generateSingle() {
+  const keyword = document.getElementById('singleKeyword').value.trim();
+  if (!keyword) return;
+  const btn = document.getElementById('btnSingle');
+  const loading = document.getElementById('loading');
+  btn.disabled = true; loading.classList.add('visible');
+  const t0 = performance.now();
+  try {
+    const resp = await fetch(API_BASE + '/' + currentEndpoint, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ keyword }),
     });
+    const data = await resp.json();
+    const latency = ((performance.now() - t0) / 1000).toFixed(2);
+    if (!resp.ok) throw new Error(data.detail || '请求失败');
+    renderSingleResult(keyword, data, latency);
+  } catch (err) { alert('请求失败: ' + err.message); }
+  finally { btn.disabled = false; loading.classList.remove('visible'); }
+}
+
+function renderSingleResult(keyword, data, latency) {
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('resultBatch').classList.remove('visible');
+  document.getElementById('resultSingle').classList.add('visible');
+
+  const vec = data.vector;
+  document.getElementById('singleDim').textContent = vec.length;
+  document.getElementById('singleLatency').textContent = latency + 's';
+  document.getElementById('singleLatencyInfo').textContent = '/' + currentEndpoint + ' \u00b7 ' + vec.length + ' dims \u00b7 ' + latency + 's';
+
+  // 向量预览
+  const wrap = document.getElementById('singleVectorWrap');
+  const preview = vec.slice(0, 20).map(v => v.toFixed(4)).join(', ') + ', ...';
+  wrap.innerHTML = '<div class="vector-item" id="svec-0"><div class="vec-idx">V1</div><div class="vec-text">' + keyword + '</div><div class="vec-data">' + preview + '</div></div>';
+  wrap._fullData = vec;
+
+  // JSON 预览
+  const jsonStr = JSON.stringify(data, null, 2);
+  document.getElementById('singleJson').textContent = jsonStr.substring(0, 2000) + (jsonStr.length > 2000 ? '\n  ... (' + vec.length + ' values total)' : '');
+}
+
+function toggleSingleVector() {
+  const item = document.getElementById('svec-0');
+  if (!item) return;
+  const wrap = document.getElementById('singleVectorWrap');
+  const btn = document.querySelector('#resultSingle .toggle-btn');
+  if (item.classList.contains('expanded')) {
+    item.classList.remove('expanded');
+    item.querySelector('.vec-data').textContent = wrap._fullData.slice(0, 20).map(v => v.toFixed(4)).join(', ') + ', ...';
     btn.textContent = '展开全部';
   } else {
-    items.forEach(item => {
-      item.classList.add('expanded');
-      const i = parseInt(item.id.replace('vec-', ''));
-      const full = item.closest('.vector-list')._fullData[i].map(v => v.toFixed(6)).join(', ');
-      item.querySelector('.vec-data').textContent = full;
-    });
+    item.classList.add('expanded');
+    item.querySelector('.vec-data').textContent = wrap._fullData.map(v => v.toFixed(6)).join(', ');
     btn.textContent = '收起全部';
   }
 }
@@ -657,7 +821,7 @@ function toggleAllVectors() {
 document.addEventListener('keydown', e => {
   if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
     e.preventDefault();
-    generate();
+    if (currentTab === 'batch') generateBatch(); else generateSingle();
   }
 });
 
