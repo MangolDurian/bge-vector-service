@@ -10,7 +10,7 @@
     - GET  /health   ：健康检查
 
 启动方式：
-    uvicorn main:app --host 0.0.0.0 --port 8000
+    uvicorn main:app --host 0.0.0.0 --port 7999
 
 项目结构：
     embedding-api/

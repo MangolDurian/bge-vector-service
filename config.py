@@ -39,7 +39,7 @@ class Settings:
     HOST: str = os.getenv("EMBEDDING_HOST", "0.0.0.0")
 
     # 服务监听端口
-    PORT: int = int(os.getenv("EMBEDDING_PORT", "8000"))
+    PORT: int = int(os.getenv("EMBEDDING_PORT", "7999"))
 
     # 单次请求最大文本数量（防止内存溢出）
     MAX_TEXTS_PER_REQUEST: int = int(os.getenv("EMBEDDING_MAX_TEXTS", "128"))
