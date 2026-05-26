@@ -1,7 +1,7 @@
 # API 接口文档
 
 > 中文文本向量（Embedding）服务接口说明
-> 基础地址：`http://<host>:8000`
+> 基础地址：`http://<host>:7999`
 
 ---
 
@@ -20,7 +20,7 @@
 #### 请求示例
 
 ```bash
-curl -X POST http://localhost:8000/embed \
+curl -X POST http://localhost:7999/embed \
   -H "Content-Type: application/json" \
   -d '{
     "texts": ["你好世界", "这是一段测试文本"]
@@ -66,7 +66,7 @@ curl -X POST http://localhost:8000/embed \
 #### 请求示例
 
 ```bash
-curl http://localhost:8000/health
+curl http://localhost:7999/health
 ```
 
 #### 响应示例
@@ -89,8 +89,8 @@ curl http://localhost:8000/health
 
 服务启动后，浏览器访问以下地址可查看自动生成的 Swagger UI 文档：
 
-- Swagger UI：`http://localhost:8000/docs`
-- ReDoc：`http://localhost:8000/redoc`
+- Swagger UI：`http://localhost:7999/docs`
+- ReDoc：`http://localhost:7999/redoc`
 
 ---
 

@@ -68,8 +68,9 @@ python main.py
 首次启动会自动从 HuggingFace 下载模型（约 400MB），后续使用本地缓存。
 
 服务启动后访问：
-- API 地址：`http://localhost:8000`
-- Swagger 文档：`http://localhost:8000/docs`
+- API 地址：`http://localhost:7999`
+- Swagger 文档：`http://localhost:7999/docs`
+- 前端 UI（可选）：`http://localhost:8001`
 
 > 模型下载慢？设置镜像：`export HF_ENDPOINT=https://hf-mirror.com`
 
@@ -82,7 +83,7 @@ python main.py
 **POST** `/embed`
 
 ```bash
-curl -X POST http://localhost:8000/embed \
+curl -X POST http://localhost:7999/embed \
   -H "Content-Type: application/json" \
   -d '{"texts": ["自然语言处理", "深度学习"]}'
 ```
@@ -102,7 +103,7 @@ curl -X POST http://localhost:8000/embed \
 **GET** `/health`
 
 ```bash
-curl http://localhost:8000/health
+curl http://localhost:7999/health
 ```
 
 响应：
@@ -119,7 +120,7 @@ curl http://localhost:8000/health
 ```python
 import requests, numpy as np
 
-resp = requests.post("http://localhost:8000/embed",
+resp = requests.post("http://localhost:7999/embed",
     json={"texts": ["今天天气真好", "今天阳光明媚"]})
 embs = np.array(resp.json()["embeddings"])
 print(f"相似度: {np.dot(embs[0], embs[1]):.4f}")
@@ -138,8 +139,20 @@ print(f"相似度: {np.dot(embs[0], embs[1]):.4f}")
 | `EMBEDDING_DEVICE` | 自动选择 | 推理设备（cuda / cpu） |
 | `EMBEDDING_BATCH_SIZE` | `32` | 编码批大小 |
 | `EMBEDDING_HOST` | `0.0.0.0` | 监听地址 |
-| `EMBEDDING_PORT` | `8000` | 监听端口 |
+| `EMBEDDING_PORT` | `7999` | 后端 API 监听端口 |
 | `EMBEDDING_MAX_TEXTS` | `128` | 单次最大文本数 |
+
+---
+
+## 前端 UI（可选）
+
+`web/index.html` 是辅助测试页面，可按需用独立端口部署：
+
+```bash
+python -m http.server 8001 -d web
+```
+
+访问 `http://localhost:8001` 打开页面。页面会自动调用同一主机的后端 API：`http://localhost:7999`。
 
 ---
 

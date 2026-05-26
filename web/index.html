@@ -587,12 +587,14 @@
 <!-- 底栏 -->
 <footer class="footer">
   <div>BGE Vector Service · bge-large-zh-v1.5</div>
-  <div>Powered by FlagEmbedding</div>
+  <div>UI :8001 · API :7999 · Powered by FlagEmbedding</div>
 </footer>
 
 <script>
 /* ========== 配置 ========== */
-const API_BASE = 'http://localhost:7999';
+const API_HOST = window.location.hostname || 'localhost';
+const API_PROTOCOL = window.location.protocol === 'file:' ? 'http:' : window.location.protocol;
+const API_BASE = `${API_PROTOCOL}//${API_HOST}:7999`;
 let currentTab = 'batch';
 let currentEndpoint = 'vector';
 

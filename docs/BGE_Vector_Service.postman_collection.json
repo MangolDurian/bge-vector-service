@@ -1,7 +1,7 @@
 {
 	"info": {
 		"name": "BGE Vector Service",
-		"description": "基于 BGE (bge-base-zh-v1.5) 的中文文本 Embedding 接口集合。\n\n基础地址：http://localhost:8000\n向量维度：768\n相似度计算：内积（点积）",
+		"description": "基于 BGE (bge-base-zh-v1.5) 的中文文本 Embedding 接口集合。\n\n基础地址：http://localhost:7999\n向量维度：768\n相似度计算：内积（点积）",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -25,7 +25,7 @@
 						"url": {
 							"proto": "http",
 							"host": ["localhost"],
-							"port": "8000",
+							"port": "7999",
 							"path": ["embed"]
 						},
 						"description": "将中文文本列表转换为 768 维向量，返回结果可用于语义搜索、文本聚类、相似度计算等。"
@@ -49,7 +49,7 @@
 						"url": {
 							"proto": "http",
 							"host": ["localhost"],
-							"port": "8000",
+							"port": "7999",
 							"path": ["embed"]
 						},
 						"description": "对比语义相近与语义不同的文本向量。前两条语义相近，向量内积会较高；第三条语义不同，内积会较低。"
@@ -73,7 +73,7 @@
 						"url": {
 							"proto": "http",
 							"host": ["localhost"],
-							"port": "8000",
+							"port": "7999",
 							"path": ["embed"]
 						},
 						"description": "单条文本的向量生成。"
@@ -97,7 +97,7 @@
 						"url": {
 							"proto": "http",
 							"host": ["localhost"],
-							"port": "8000",
+							"port": "7999",
 							"path": ["embed"]
 						},
 						"description": "长文本向量生成示例（超过 512 tokens 的部分会被自动截断）。"
@@ -118,7 +118,7 @@
 						"url": {
 							"proto": "http",
 							"host": ["localhost"],
-							"port": "8000",
+							"port": "7999",
 							"path": ["health"]
 						},
 						"description": "检查服务是否正常运行，模型是否已加载完毕。\n\n- status=ok：服务正常\n- status=loading：模型加载中"
@@ -133,7 +133,7 @@
 						"url": {
 							"proto": "http",
 							"host": ["localhost"],
-							"port": "8000",
+							"port": "7999",
 							"path": ["docs"]
 						},
 						"description": "打开浏览器访问此地址，查看 Swagger UI 交互式 API 文档。"
@@ -163,7 +163,7 @@
 						"url": {
 							"proto": "http",
 							"host": ["localhost"],
-							"port": "8000",
+							"port": "7999",
 							"path": ["embed"]
 						},
 						"description": "测试空列表，预期返回 400 错误。"
@@ -187,7 +187,7 @@
 						"url": {
 							"proto": "http",
 							"host": ["localhost"],
-							"port": "8000",
+							"port": "7999",
 							"path": ["embed"]
 						},
 						"description": "测试缺少必填字段，预期返回 422 校验错误。"
@@ -201,7 +201,7 @@
 	"variable": [
 		{
 			"key": "base_url",
-			"value": "http://localhost:8000",
+			"value": "http://localhost:7999",
 			"type": "string"
 		}
 	]
